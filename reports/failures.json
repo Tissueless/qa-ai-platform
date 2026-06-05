@@ -1,0 +1,11 @@
+[
+  {
+    "timestamp": "2026-05-20T08:37:56.544Z",
+    "category": "SELECTOR_FAILURE",
+    "signature": "SELECTOR_FAILURE",
+    "rootCause": "The test is attempting to click on a selector '#not-exists' which does not exist in the DOM.",
+    "fixSuggestion": "Ensure that the selector used for clicking ('#not-exists') exists and is correctly targeted within your application's HTML structure. Verify if this element should be clickable or if it might have been dynamically added after the initial page load.",
+    "confidence": 0.9,
+    "severity": "high"
+  }
+]

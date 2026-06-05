@@ -1,0 +1,202 @@
+{
+  "feature": "회원가입 기능",
+  "testCases": [
+    {
+      "title": "이메일 필수 테스트",
+      "type": "happy-path",
+      "steps": [],
+      "expected": ""
+    },
+    {
+      "title": "비밀번호 최소 8자 이상 테스트",
+      "type": "happy-path",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com",
+            "password": "shortpass"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'shortpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "shortpass"
+          }
+        }
+      ],
+      "expected": "회원가입 폼이 유효성 검사를 통과하지 못하고 다시 이메일을 입력해야 합니다."
+    },
+    {
+      "title": "비밀번호 최소 8자 이상 테스트",
+      "type": "happy-path",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com",
+            "password": "longpass"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'longpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "longpass"
+          }
+        }
+      ],
+      "expected": "회원가입 폼이 유효성 검사를 통과하여 회원 가입이 완료됩니다."
+    },
+    {
+      "title": "전화번호 인증 필요 테스트",
+      "type": "happy-path",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com",
+            "password": "longpass"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'longpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "longpass"
+          }
+        },
+        {
+          "description": "회원가입 폼을 클릭하여 인증 메시지가 표시됩니다. 이메일 주소를 확인하고, 인증 코드를 입력합니다.",
+          "inputData": {
+            "phoneNumber": "+1234567890",
+            "verificationCode": "1234"
+          }
+        },
+        {
+          "description": "인증 코드가 올바르게 입력되면 회원 가입이 완료됩니다."
+        }
+      ],
+      "expected": "회원가입 폼이 유효성 검사를 통과하여 회원 가입이 완료됩니다."
+    },
+    {
+      "title": "중복 이메일 불가 테스트",
+      "type": "happy-path",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'longpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "longpass"
+          }
+        },
+        {
+          "description": "회원가입 폼을 클릭하여 인증 메시지가 표시됩니다. 이메일 주소를 확인하고, 인증 코드를 입력합니다.",
+          "inputData": {
+            "phoneNumber": "+1234567890",
+            "verificationCode": "1234"
+          }
+        },
+        {
+          "description": "이미 존재하는 이메일을 다시 사용하려고 시도합니다. 이전에 입력한 이메일 주소가 이미 사용되어 회원 가입이 실패합니다."
+        }
+      ],
+      "expected": "이미 존재하는 이메일을 다시 사용하려고 시도하면 회원 가입이 실패합니다."
+    },
+    {
+      "title": "이메일 필수 테스트",
+      "type": "negative",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {}
+        }
+      ],
+      "expected": "회원 가입 폼이 유효성 검사를 통과하지 못하고 다시 이메일을 입력해야 합니다."
+    },
+    {
+      "title": "비밀번호 최소 8자 이상 테스트",
+      "type": "negative",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'shortpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "shortpass"
+          }
+        },
+        {
+          "description": "회원가입 폼을 클릭하여 인증 메시지가 표시됩니다. 이메일 주소를 확인하고, 인증 코드를 입력합니다.",
+          "inputData": {
+            "phoneNumber": "+1234567890",
+            "verificationCode": "1234"
+          }
+        },
+        {
+          "description": "이미 존재하는 이메일을 다시 사용하려고 시도합니다. 비밀번호가 최소 8자 이상이 아닙니다."
+        }
+      ],
+      "expected": "비밀번호가 최소 8자 이상이 아닙니다."
+    },
+    {
+      "title": "전화번호 인증 필요 테스트",
+      "type": "negative",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'longpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "longpass"
+          }
+        },
+        {
+          "description": "회원가입 폼을 클릭하여 인증 메시지가 표시됩니다. 이메일 주소를 확인하고, 인증 코드를 입력하지 않습니다.",
+          "inputData": {}
+        },
+        {
+          "description": "이미 존재하는 이메일을 다시 사용하려고 시도합니다. 비밀번호와 전화번호 인증이 필요합니다."
+        }
+      ],
+      "expected": "비밀번호와 전화번호 인증이 필요합니다."
+    },
+    {
+      "title": "중복 이메일 불가 테스트",
+      "type": "negative",
+      "steps": [
+        {
+          "description": "회원가입 폼을 클릭합니다.",
+          "inputData": {
+            "email": "test@example.com"
+          }
+        },
+        {
+          "description": "비밀번호 입력란에 'longpass'를 입력하고, 비밀번호 확인란에도 동일한 값을 입력합니다.",
+          "inputData": {
+            "confirmPassword": "longpass"
+          }
+        },
+        {
+          "description": "회원가입 폼을 클릭하여 인증 메시지가 표시됩니다. 이메일 주소를 확인하고, 인증 코드를 입력하지 않습니다.",
+          "inputData": {}
+        },
+        {
+          "description": "이미 존재하는 이메일을 다시 사용하려고 시도합니다. 이미 존재하는 이메일입니다."
+        }
+      ],
+      "expected": "이미 존재하는 이메일입니다."
+    }
+  ]
+}

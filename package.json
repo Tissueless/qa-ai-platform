@@ -1,0 +1,28 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "type": "module",
+
+  "scripts": {
+    "generate:testcases": "tsx ai/agents/generate-testcase.ts",
+
+    "generate:playwright": "tsx ai/generators/playwright-generator.ts",
+
+    "test:e2e": "playwright test",
+
+    "analyze:failure": "tsx ai/agents/analyze-failure.ts",
+
+    "run:test": "tsx ai/utils/run-playwright.ts"
+  },
+
+  "devDependencies": {
+    "@playwright/test": "^1.54.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  },
+
+  "dependencies": {
+    "ollama": "^0.5.18",
+    "zod": "^4.0.17"
+  }
+}

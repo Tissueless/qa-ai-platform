@@ -1,0 +1,12 @@
+[
+  {
+    "testName": "회원가입 테스트",
+    "status": "passed",
+    "timestamp": "..."
+  },
+  {
+    "testName": "회원가입 테스트",
+    "status": "failed",
+    "timestamp": "..."
+  }
+]

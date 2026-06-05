@@ -1,0 +1,9 @@
+{
+  "email": "#email",
+
+  "password": "#password",
+
+  "phone": "#phone",
+
+  "submit": "[data-testid='submit']"
+}
