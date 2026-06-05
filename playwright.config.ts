@@ -11,9 +11,9 @@ export default defineConfig({
     "test-results",
 
   reporter: [
-    ["html", {
-      outputFolder:
-        "playwright-report"
+    ["html", {open: "never"}],["json", {
+      outputFile:
+        "reports/playwright-report.json"
     }]
   ],
 

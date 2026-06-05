@@ -1,0 +1,132 @@
+[
+  {
+    "timestamp": "2026-06-05T00:00:00Z",
+    "testName": "회원가입",
+    "status": "passed"
+  },
+  {
+    "timestamp": "2026-06-05T00:01:00Z",
+    "testName": "회원가입",
+    "status": "failed"
+  },
+  {
+    "timestamp": "2026-06-05T00:02:00Z",
+    "testName": "회원가입",
+    "status": "passed"
+  },
+  {
+    "timestamp": "2026-06-05T00:03:00Z",
+    "testName": "로그인",
+    "status": "passed"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.229Z",
+    "testName": "playwright 동작 확인",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.231Z",
+    "testName": "실패 테스트",
+    "status": "unexpected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.231Z",
+    "testName": "이메일 필수 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.231Z",
+    "testName": "비밀번호 최소 8자 이상 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "비밀번호 최소 8자 이상 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "전화번호 인증 필요 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "중복 이메일 불가 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "이메일 필수 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "비밀번호 최소 8자 이상 테스트 (3)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "전화번호 인증 필요 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:24:22.232Z",
+    "testName": "중복 이메일 불가 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.046Z",
+    "testName": "playwright 동작 확인",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "실패 테스트",
+    "status": "unexpected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "이메일 필수 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "비밀번호 최소 8자 이상 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "비밀번호 최소 8자 이상 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "전화번호 인증 필요 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "중복 이메일 불가 테스트",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "이메일 필수 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "비밀번호 최소 8자 이상 테스트 (3)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "전화번호 인증 필요 테스트 (2)",
+    "status": "expected"
+  },
+  {
+    "timestamp": "2026-06-05T05:25:06.049Z",
+    "testName": "중복 이메일 불가 테스트 (2)",
+    "status": "expected"
+  }
+]

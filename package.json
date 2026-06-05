@@ -12,7 +12,13 @@
 
     "analyze:failure": "tsx ai/agents/analyze-failure.ts",
 
-    "run:test": "tsx ai/utils/run-playwright.ts"
+    "run:test": "tsx ai/utils/run-playwright.ts",
+
+    "qa": "tsx ai/run-all.ts",
+
+    "flaky": "tsx ai/agents/analyze-flaky-tests.ts",
+
+    "save-history": "tsx ai/utils/save-playwright-results.ts"
   },
 
   "devDependencies": {
@@ -26,3 +32,4 @@
     "zod": "^4.0.17"
   }
 }
+
