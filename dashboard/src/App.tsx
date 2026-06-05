@@ -15,10 +15,23 @@ import {
 import failures
   from "../../reports/failures.json";
 
+import { useState }
+  from "react";
+
 import history
   from "../../reports/test-history.json";
 
 function App() {
+
+  const [
+    selectedFailure,
+    setSelectedFailure
+  ] = useState<
+    typeof failures[number]
+    | null
+  >(
+    null
+  );
 
   const categoryMap:
     Record<string, number>
@@ -158,7 +171,7 @@ function App() {
   [...failures]
     .reverse()
     .slice(0, 10);
-
+  
   const trendMap:
   Record<
     string,
@@ -224,7 +237,9 @@ const trendData =
 
     <div
       style={{
-        padding: 40
+        padding: 40,
+        background: "#f5f7fb",
+        minHeight: "100vh"
       }}
     >
 
@@ -235,37 +250,92 @@ const trendData =
       <div
         style={{
           display: "flex",
-          gap: 40,
+          gap: 20,
+          flexWrap: "wrap",
           marginBottom: 40
         }}
       >
 
-        <div>
+        <div
+          style={{
+            background: "#fff",
+            padding: 20,
+            borderRadius: 12,
+            boxShadow:
+              "0 2px 8px rgba(0,0,0,0.1)",
+            minWidth: 180
+          }}
+        >
           <h3>Total Tests</h3>
-          <h2>
+
+          <h1
+            style={{
+              margin: 0
+            }}
+          >
             {totalTests}
-          </h2>
+          </h1>
         </div>
-
-        <div>
+        <div
+          style={{
+            background: "#fff",
+            padding: 20,
+            borderRadius: 12,
+            boxShadow:
+              "0 2px 8px rgba(0,0,0,0.1)",
+            minWidth: 180
+          }}
+        >
           <h3>Passed</h3>
-          <h2>
+
+          <h1
+            style={{
+              margin: 0
+            }}
+          >
             {passedTests}
-          </h2>
+          </h1>
         </div>
-
-        <div>
+        <div
+          style={{
+            background: "#fff",
+            padding: 20,
+            borderRadius: 12,
+            boxShadow:
+              "0 2px 8px rgba(0,0,0,0.1)",
+            minWidth: 180
+          }}
+        >
           <h3>Failed</h3>
-          <h2>
+
+          <h1
+            style={{
+              margin: 0
+            }}
+          >
             {failedTests}
-          </h2>
+          </h1>
         </div>
 
-        <div>
+        <div
+          style={{
+            background: "#fff",
+            padding: 20,
+            borderRadius: 12,
+            boxShadow:
+              "0 2px 8px rgba(0,0,0,0.1)",
+            minWidth: 180
+          }}
+        >
           <h3>Success Rate</h3>
-          <h2>
-            {successRate}%
-          </h2>
+
+          <h1
+            style={{
+              margin: 0
+            }}
+          >
+            {successRate}
+          </h1>
         </div>
 
       </div>
@@ -373,7 +443,76 @@ const trendData =
 >
   Recent Failures
 </h2>
+{
+  selectedFailure && (
 
+    <div
+      style={{
+        marginTop: 40,
+        padding: 20,
+        border:
+          "1px solid #ddd",
+        borderRadius: 8
+      }}
+    >
+
+      <h2>
+        Failure Details
+      </h2>
+
+      <p>
+        <strong>
+          Category:
+        </strong>
+        {" "}
+        {
+          selectedFailure.category
+        }
+      </p>
+
+      <p>
+        <strong>
+          Severity:
+        </strong>
+        {" "}
+        {
+          selectedFailure.severity
+        }
+      </p>
+
+      <p>
+        <strong>
+          Confidence:
+        </strong>
+        {" "}
+        {
+          selectedFailure.confidence
+        }
+      </p>
+
+      <h3>
+        Root Cause
+      </h3>
+
+      <p>
+        {
+          selectedFailure.rootCause
+        }
+      </p>
+
+      <h3>
+        Fix Suggestion
+      </h3>
+
+      <p>
+        {
+          selectedFailure.fixSuggestion
+        }
+      </p>
+
+    </div>
+  )
+}
 <table
   style={{
     borderCollapse:
@@ -415,8 +554,16 @@ const trendData =
       ) => (
 
         <tr
-          key={index}
-        >
+  key={index}
+  onClick={() =>
+    setSelectedFailure(
+      failure
+    )
+  }
+  style={{
+    cursor: "pointer"
+  }}
+>
 
           <td>
             {
