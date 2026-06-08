@@ -21,7 +21,15 @@ import { useState }
 import history
   from "../../reports/test-history.json";
 
+  
 function App() {
+
+  const COLORS = [
+ "#0088FE",
+ "#00C49F",
+ "#FFBB28",
+ "#FF8042"
+];
 
   const [
     selectedFailure,
@@ -340,6 +348,8 @@ const trendData =
 
       </div>
 
+<div className="card">
+
       <h2>
         Failure Categories
       </h2>
@@ -359,9 +369,9 @@ const trendData =
 
           {categoryData.map(
             (_, index) => (
-
               <Cell
                 key={index}
+                
               />
             )
           )}
@@ -371,7 +381,17 @@ const trendData =
         <Tooltip />
 
       </PieChart>
-
+      </div>
+<div
+  style={{
+    background: "#fff",
+    padding: 20,
+    borderRadius: 12,
+    boxShadow:
+      "0 2px 8px rgba(0,0,0,0.1)",
+    marginBottom: 30
+  }}
+>
       <h2>
         Severity Distribution
       </h2>
@@ -397,6 +417,8 @@ const trendData =
         />
 
       </BarChart>
+</div>
+
 <h2
   style={{
     marginTop: 40
