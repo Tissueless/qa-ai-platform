@@ -3,24 +3,26 @@ import type { Step } from "../types/testcase.js";
 export function mapStepToCode(step: Step) {
   switch (step.action) {
     case "goto":
-      return `await page.goto("${step.target}");`;
+      return `await page.goto(${JSON.stringify(step.target)});`;
 
     case "fill":
       return `
 await page.fill(
-  selectors.${step.target},
-  "${step.value ?? ""}"
+  selectors[${JSON.stringify(step.target)}],
+  ${JSON.stringify(step.value ?? "")}
 );
 `;
 
     case "click":
       return `
 await page.click(
-  selectors.${step.target}
+  selectors[${JSON.stringify(step.target)}]
 );
 `;
 
     default:
-      return `// unknown action: ${JSON.stringify(step)}`;
+      throw new Error(
+        `Unsupported test step action: ${JSON.stringify(step)}`
+      );
   }
 }

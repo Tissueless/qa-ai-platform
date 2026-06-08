@@ -33,6 +33,8 @@ type TestHistory = {
   status: string;
 };
 
+type NormalizedStatus = "passed" | "failed" | "skipped" | "unknown";
+
 type ChartDatum = {
   name: string;
   value: number;
@@ -65,13 +67,32 @@ function toChartData(counts: Record<string, number>): ChartDatum[] {
   return Object.entries(counts).map(([name, value]) => ({ name, value }));
 }
 
+function normalizeStatus(status: string): NormalizedStatus {
+  switch (status) {
+    case "expected":
+    case "passed":
+      return "passed";
+
+    case "unexpected":
+    case "failed":
+    case "timedOut":
+      return "failed";
+
+    case "skipped":
+      return "skipped";
+
+    default:
+      return "unknown";
+  }
+}
+
 function getFlakyTests(items: TestHistory[]): FlakyTest[] {
   const testStats = items.reduce<Record<string, { total: number; failed: number }>>(
     (stats, test) => {
       stats[test.testName] ??= { total: 0, failed: 0 };
       stats[test.testName].total += 1;
 
-      if (test.status === "failed") {
+      if (normalizeStatus(test.status) === "failed") {
         stats[test.testName].failed += 1;
       }
 
@@ -96,7 +117,7 @@ function getTrendData(items: TestHistory[]): TrendDatum[] {
       stats[day] ??= { total: 0, passed: 0 };
       stats[day].total += 1;
 
-      if (test.status === "passed") {
+      if (normalizeStatus(test.status) === "passed") {
         stats[day].passed += 1;
       }
 
@@ -224,8 +245,8 @@ function App() {
 
   const dashboardData = useMemo(() => {
     const totalTests = history.length;
-    const passedTests = history.filter((test) => test.status === "passed").length;
-    const failedTests = history.filter((test) => test.status === "failed").length;
+    const passedTests = history.filter((test) => normalizeStatus(test.status) === "passed").length;
+    const failedTests = history.filter((test) => normalizeStatus(test.status) === "failed").length;
 
     return {
       categoryData: toChartData(countBy(failures, (failure) => failure.category)),

@@ -21,6 +21,25 @@ const history =
       )
     : [];
 
+function normalizeStatus(status: string) {
+  switch (status) {
+    case "expected":
+    case "passed":
+      return "passed";
+
+    case "unexpected":
+    case "failed":
+    case "timedOut":
+      return "failed";
+
+    case "skipped":
+      return "skipped";
+
+    default:
+      return "unknown";
+  }
+}
+
 function walkSuite(
   suite: any
 ) {
@@ -40,7 +59,9 @@ function walkSuite(
             spec.title,
 
           status:
-            test.status
+            normalizeStatus(
+              test.status
+            )
         });
       }
     }

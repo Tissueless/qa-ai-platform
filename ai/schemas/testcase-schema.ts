@@ -10,7 +10,7 @@ export const StepSchema = z.object({
   target: z.string(),
 
   value: z.string().optional(),
-});
+}).strict();
 
 export const TestCaseSchema =
   z.object({
@@ -24,7 +24,7 @@ export const TestCaseSchema =
     steps: z.array(
       StepSchema
     ),
-  });
+  }).strict();
 
 export const TestSuiteSchema =
   z.object({
@@ -34,4 +34,4 @@ export const TestSuiteSchema =
     testCases: z.array(
       TestCaseSchema
     ),
-  });
+  }).strict();
