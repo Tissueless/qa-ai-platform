@@ -1,670 +1,311 @@
+import { useMemo, useState, type ReactNode } from "react";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
+  Bar,
   BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Bar,
-  LineChart,
-  Line
 } from "recharts";
 
-import failures
-  from "../../reports/failures.json";
+import "./App.css";
+import failuresJson from "../../reports/failures.json";
+import historyJson from "../../reports/test-history.json";
 
-import { useState }
-  from "react";
+type Failure = {
+  timestamp: string;
+  category: string;
+  rootCause: string;
+  fixSuggestion: string;
+  confidence: number;
+  severity: string;
+};
 
-import history
-  from "../../reports/test-history.json";
+type TestHistory = {
+  timestamp: string;
+  testName: string;
+  status: string;
+};
 
-  
-function App() {
+type ChartDatum = {
+  name: string;
+  value: number;
+};
 
-  const COLORS = [
- "#0088FE",
- "#00C49F",
- "#FFBB28",
- "#FF8042"
-];
+type FlakyTest = {
+  name: string;
+  score: number;
+};
 
-  const [
-    selectedFailure,
-    setSelectedFailure
-  ] = useState<
-    typeof failures[number]
-    | null
-  >(
-    null
+type TrendDatum = {
+  date: string;
+  successRate: number;
+};
+
+const failures = failuresJson as Failure[];
+const history = historyJson as TestHistory[];
+
+const CHART_COLORS = ["#2563eb", "#059669", "#d97706", "#dc2626"];
+
+function countBy<T>(items: T[], getKey: (item: T) => string): Record<string, number> {
+  return items.reduce<Record<string, number>>((counts, item) => {
+    const key = getKey(item);
+    counts[key] = (counts[key] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function toChartData(counts: Record<string, number>): ChartDatum[] {
+  return Object.entries(counts).map(([name, value]) => ({ name, value }));
+}
+
+function getFlakyTests(items: TestHistory[]): FlakyTest[] {
+  const testStats = items.reduce<Record<string, { total: number; failed: number }>>(
+    (stats, test) => {
+      stats[test.testName] ??= { total: 0, failed: 0 };
+      stats[test.testName].total += 1;
+
+      if (test.status === "failed") {
+        stats[test.testName].failed += 1;
+      }
+
+      return stats;
+    },
+    {},
   );
 
-  const categoryMap:
-    Record<string, number>
-  = {};
-
-  const severityMap:
-    Record<string, number>
-  = {};
-
-  for (const failure of failures) {
-
-    categoryMap[
-      failure.category
-    ] =
-      (
-        categoryMap[
-          failure.category
-        ] || 0
-      ) + 1;
-
-    severityMap[
-      failure.severity
-    ] =
-      (
-        severityMap[
-          failure.severity
-        ] || 0
-      ) + 1;
-  }
-
-  const categoryData =
-    Object.entries(
-      categoryMap
-    ).map(([name, value]) => ({
+  return Object.entries(testStats)
+    .map(([name, value]) => ({
       name,
-      value
-    }));
+      score: (value.failed / value.total) * 100,
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+}
 
-  const severityData =
-    Object.entries(
-      severityMap
-    ).map(([name, value]) => ({
-      name,
-      value
-    }));
+function getTrendData(items: TestHistory[]): TrendDatum[] {
+  const trendStats = items.reduce<Record<string, { total: number; passed: number }>>(
+    (stats, test) => {
+      const day = test.timestamp.split("T")[0];
+      stats[day] ??= { total: 0, passed: 0 };
+      stats[day].total += 1;
 
-  const totalTests =
-    history.length;
-
-  const passedTests =
-    history.filter(
-      test =>
-        test.status ===
-        "passed"
-    ).length;
-
-  const failedTests =
-    history.filter(
-      test =>
-        test.status ===
-        "failed"
-    ).length;
-
-  const successRate =
-    totalTests
-      ? (
-          (
-            passedTests /
-            totalTests
-          ) * 100
-        ).toFixed(1)
-      : "0";
-
-  const flakyMap:
-    Record<
-      string,
-      {
-        total: number;
-        failed: number;
+      if (test.status === "passed") {
+        stats[day].passed += 1;
       }
-    >
-  = {};
 
-  history.forEach(test => {
+      return stats;
+    },
+    {},
+  );
 
-    if (
-      !flakyMap[
-        test.testName
-      ]
-    ) {
+  return Object.entries(trendStats)
+    .map(([date, value]) => ({
+      date,
+      successRate: Number(((value.passed / value.total) * 100).toFixed(1)),
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
 
-      flakyMap[
-        test.testName
-      ] = {
-        total: 0,
-        failed: 0
-      };
-    }
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <section className="stat-card">
+      <h3>{label}</h3>
+      <strong>{value}</strong>
+    </section>
+  );
+}
 
-    flakyMap[
-      test.testName
-    ].total++;
+function ChartCard({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="panel">
+      <h2>{title}</h2>
+      <div className="chart-frame">{children}</div>
+    </section>
+  );
+}
 
-    if (
-      test.status ===
-      "failed"
-    ) {
-
-      flakyMap[
-        test.testName
-      ].failed++;
-    }
-  });
-
-  const flakyTests =
-    Object.entries(
-      flakyMap
-    )
-      .map(
-        ([name, value]) => ({
-          name,
-
-          score:
-            (
-              value.failed /
-              value.total
-            ) * 100
-        })
-      )
-      .sort(
-        (a, b) =>
-          b.score -
-          a.score
-      )
-      .slice(0, 5);
-  const recentFailures =
-  [...failures]
-    .reverse()
-    .slice(0, 10);
-  
-  const trendMap:
-  Record<
-    string,
-    {
-      total: number;
-      passed: number;
-    }
-  > = {};
-
-history.forEach(test => {
-
-  const day =
-    test.timestamp
-      .split("T")[0];
-
-  if (
-    !trendMap[day]
-  ) {
-
-    trendMap[day] = {
-      total: 0,
-      passed: 0
-    };
+function FailureDetails({ failure }: { failure: Failure | null }) {
+  if (!failure) {
+    return null;
   }
-
-  trendMap[day].total++;
-
-  if (
-    test.status ===
-    "passed"
-  ) {
-
-    trendMap[day].passed++;
-  }
-});
-
-const trendData =
-  Object.entries(
-    trendMap
-  )
-    .map(
-      ([date, value]) => ({
-        date,
-
-        successRate:
-          Number(
-            (
-              value.passed /
-              value.total *
-              100
-            ).toFixed(1)
-          )
-      })
-    )
-    .sort(
-      (a, b) =>
-        a.date.localeCompare(
-          b.date
-        )
-    );
 
   return (
-
-    <div
-      style={{
-        padding: 40,
-        background: "#f5f7fb",
-        minHeight: "100vh"
-      }}
-    >
-
-      <h1>
-        QA Analytics Dashboard
-      </h1>
-
-      <div
-        style={{
-          display: "flex",
-          gap: 20,
-          flexWrap: "wrap",
-          marginBottom: 40
-        }}
-      >
-
-        <div
-          style={{
-            background: "#fff",
-            padding: 20,
-            borderRadius: 12,
-            boxShadow:
-              "0 2px 8px rgba(0,0,0,0.1)",
-            minWidth: 180
-          }}
-        >
-          <h3>Total Tests</h3>
-
-          <h1
-            style={{
-              margin: 0
-            }}
-          >
-            {totalTests}
-          </h1>
+    <section className="panel failure-details">
+      <h2>Failure Details</h2>
+      <dl>
+        <div>
+          <dt>Category</dt>
+          <dd>{failure.category}</dd>
         </div>
-        <div
-          style={{
-            background: "#fff",
-            padding: 20,
-            borderRadius: 12,
-            boxShadow:
-              "0 2px 8px rgba(0,0,0,0.1)",
-            minWidth: 180
-          }}
-        >
-          <h3>Passed</h3>
-
-          <h1
-            style={{
-              margin: 0
-            }}
-          >
-            {passedTests}
-          </h1>
+        <div>
+          <dt>Severity</dt>
+          <dd>{failure.severity}</dd>
         </div>
-        <div
-          style={{
-            background: "#fff",
-            padding: 20,
-            borderRadius: 12,
-            boxShadow:
-              "0 2px 8px rgba(0,0,0,0.1)",
-            minWidth: 180
-          }}
-        >
-          <h3>Failed</h3>
-
-          <h1
-            style={{
-              margin: 0
-            }}
-          >
-            {failedTests}
-          </h1>
+        <div>
+          <dt>Confidence</dt>
+          <dd>{failure.confidence}</dd>
         </div>
-
-        <div
-          style={{
-            background: "#fff",
-            padding: 20,
-            borderRadius: 12,
-            boxShadow:
-              "0 2px 8px rgba(0,0,0,0.1)",
-            minWidth: 180
-          }}
-        >
-          <h3>Success Rate</h3>
-
-          <h1
-            style={{
-              margin: 0
-            }}
-          >
-            {successRate}
-          </h1>
-        </div>
-
-      </div>
-
-<div className="card">
-
-      <h2>
-        Failure Categories
-      </h2>
-
-      <PieChart
-        width={400}
-        height={300}
-      >
-
-        <Pie
-          data={categoryData}
-          dataKey="value"
-          nameKey="name"
-          outerRadius={100}
-          label
-        >
-
-          {categoryData.map(
-            (_, index) => (
-              <Cell
-                key={index}
-                
-              />
-            )
-          )}
-
-        </Pie>
-
-        <Tooltip />
-
-      </PieChart>
-      </div>
-<div
-  style={{
-    background: "#fff",
-    padding: 20,
-    borderRadius: 12,
-    boxShadow:
-      "0 2px 8px rgba(0,0,0,0.1)",
-    marginBottom: 30
-  }}
->
-      <h2>
-        Severity Distribution
-      </h2>
-
-      <BarChart
-        width={500}
-        height={300}
-        data={severityData}
-      >
-
-        <CartesianGrid />
-
-        <XAxis
-          dataKey="name"
-        />
-
-        <YAxis />
-
-        <Tooltip />
-
-        <Bar
-          dataKey="value"
-        />
-
-      </BarChart>
-</div>
-
-<h2
-  style={{
-    marginTop: 40
-  }}
->
-  Success Trend
-</h2>
-
-<LineChart
-  width={700}
-  height={300}
-  data={trendData}
->
-
-  <CartesianGrid />
-
-  <XAxis
-    dataKey="date"
-  />
-
-  <YAxis
-    domain={[0, 100]}
-  />
-
-  <Tooltip />
-
-  <Line
-    type="monotone"
-    dataKey="successRate"
-  />
-
-</LineChart>
-      <h2
-        style={{
-          marginTop: 40
-        }}
-      >
-        Top Flaky Tests
-      </h2>
-<h2
-  style={{
-    marginTop: 40
-  }}
->
-  Recent Failures
-</h2>
-{
-  selectedFailure && (
-
-    <div
-      style={{
-        marginTop: 40,
-        padding: 20,
-        border:
-          "1px solid #ddd",
-        borderRadius: 8
-      }}
-    >
-
-      <h2>
-        Failure Details
-      </h2>
-
-      <p>
-        <strong>
-          Category:
-        </strong>
-        {" "}
-        {
-          selectedFailure.category
-        }
-      </p>
-
-      <p>
-        <strong>
-          Severity:
-        </strong>
-        {" "}
-        {
-          selectedFailure.severity
-        }
-      </p>
-
-      <p>
-        <strong>
-          Confidence:
-        </strong>
-        {" "}
-        {
-          selectedFailure.confidence
-        }
-      </p>
-
-      <h3>
-        Root Cause
-      </h3>
-
-      <p>
-        {
-          selectedFailure.rootCause
-        }
-      </p>
-
-      <h3>
-        Fix Suggestion
-      </h3>
-
-      <p>
-        {
-          selectedFailure.fixSuggestion
-        }
-      </p>
-
-    </div>
-  )
+      </dl>
+      <h3>Root Cause</h3>
+      <p>{failure.rootCause}</p>
+      <h3>Fix Suggestion</h3>
+      <p>{failure.fixSuggestion}</p>
+    </section>
+  );
 }
-<table
-  style={{
-    borderCollapse:
-      "collapse",
-    width: "100%"
-  }}
->
 
-  <thead>
-
-    <tr>
-
-      <th>
-        Timestamp
-      </th>
-
-      <th>
-        Category
-      </th>
-
-      <th>
-        Severity
-      </th>
-
-      <th>
-        Confidence
-      </th>
-
-    </tr>
-
-  </thead>
-
-  <tbody>
-
-    {recentFailures.map(
-      (
-        failure,
-        index
-      ) => (
-
-        <tr
-  key={index}
-  onClick={() =>
-    setSelectedFailure(
-      failure
-    )
-  }
-  style={{
-    cursor: "pointer"
-  }}
->
-
-          <td>
-            {
-              failure.timestamp
-            }
-          </td>
-
-          <td>
-            {
-              failure.category
-            }
-          </td>
-
-          <td>
-            {
-              failure.severity
-            }
-          </td>
-
-          <td>
-            {
-              failure.confidence
-            }
-          </td>
-
-        </tr>
-      )
-    )}
-
-  </tbody>
-
-</table>
+function RecentFailuresTable({
+  failures,
+  onSelect,
+}: {
+  failures: Failure[];
+  onSelect: (failure: Failure) => void;
+}) {
+  return (
+    <section className="panel">
+      <h2>Recent Failures</h2>
       <table>
-
         <thead>
           <tr>
-            <th>
-              Test
-            </th>
-
-            <th>
-              Flaky %
-            </th>
+            <th>Timestamp</th>
+            <th>Category</th>
+            <th>Severity</th>
+            <th>Confidence</th>
           </tr>
         </thead>
-
         <tbody>
-
-          {flakyTests.map(
-            test => (
-
-              <tr
-                key={
-                  test.name
-                }
-              >
-
-                <td>
-                  {test.name}
-                </td>
-
-                <td>
-                  {test.score.toFixed(
-                    1
-                  )}
-                  %
-                </td>
-
-              </tr>
-            )
-          )}
-
+          {failures.map((failure) => (
+            <tr key={`${failure.timestamp}-${failure.category}`} onClick={() => onSelect(failure)}>
+              <td>{failure.timestamp}</td>
+              <td>{failure.category}</td>
+              <td>{failure.severity}</td>
+              <td>{failure.confidence}</td>
+            </tr>
+          ))}
         </tbody>
-
       </table>
-
-    </div>
+    </section>
   );
+}
 
+function FlakyTestsTable({ tests }: { tests: FlakyTest[] }) {
+  return (
+    <section className="panel">
+      <h2>Top Flaky Tests</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Flaky %</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tests.map((test) => (
+            <tr key={test.name}>
+              <td>{test.name}</td>
+              <td>{test.score.toFixed(1)}%</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+function App() {
+  const [selectedFailure, setSelectedFailure] = useState<Failure | null>(null);
+
+  const dashboardData = useMemo(() => {
+    const totalTests = history.length;
+    const passedTests = history.filter((test) => test.status === "passed").length;
+    const failedTests = history.filter((test) => test.status === "failed").length;
+
+    return {
+      categoryData: toChartData(countBy(failures, (failure) => failure.category)),
+      failedTests,
+      flakyTests: getFlakyTests(history),
+      passedTests,
+      recentFailures: [...failures].reverse().slice(0, 10),
+      severityData: toChartData(countBy(failures, (failure) => failure.severity)),
+      successRate: totalTests ? ((passedTests / totalTests) * 100).toFixed(1) : "0",
+      totalTests,
+      trendData: getTrendData(history),
+    };
+  }, []);
+
+  return (
+    <main className="dashboard">
+      <header className="dashboard-header">
+        <h1>QA Analytics Dashboard</h1>
+      </header>
+
+      <section className="stats-grid" aria-label="Test summary">
+        <StatCard label="Total Tests" value={dashboardData.totalTests} />
+        <StatCard label="Passed" value={dashboardData.passedTests} />
+        <StatCard label="Failed" value={dashboardData.failedTests} />
+        <StatCard label="Success Rate" value={`${dashboardData.successRate}%`} />
+      </section>
+
+      <section className="charts-grid">
+        <ChartCard title="Failure Categories">
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={dashboardData.categoryData}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={100}
+                label
+              >
+                {dashboardData.categoryData.map((entry, index) => (
+                  <Cell key={entry.name} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Severity Distribution">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={dashboardData.severityData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#2563eb" />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+        <ChartCard title="Success Trend">
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={dashboardData.trendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis domain={[0, 100]} />
+              <Tooltip />
+              <Line type="monotone" dataKey="successRate" stroke="#059669" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </section>
+
+      <section className="tables-grid">
+        <RecentFailuresTable failures={dashboardData.recentFailures} onSelect={setSelectedFailure} />
+        <FlakyTestsTable tests={dashboardData.flakyTests} />
+      </section>
+
+      <FailureDetails failure={selectedFailure} />
+    </main>
+  );
 }
 
 export default App;
